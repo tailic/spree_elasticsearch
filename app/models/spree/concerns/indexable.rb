@@ -2,6 +2,7 @@ module Spree
   module Concerns
     module Indexable
       class ResultList
+        require 'typhoeus/adapters/faraday'
         include Enumerable
         include Kaminari::PageScopeMethods
         include ::Virtus.model
@@ -103,15 +104,15 @@ module Spree
           search_args[:type] = type
 
           result = client.search search_args
-          ids = result["hits"]["hits"].map {|item| item["_source"]["id"] } # use to get the records and sort them in that order
+          ids = result['hits']['hits'].map {|item| item['_source']['id'] } # use to get the records and sort them in that order
           result_list = includes(:translations, [:master => [:prices, :images]]).find(ids).index_by(&:id).slice(*ids).values
 
           # Convert all facets to facet objects
-          facet_list = result["facets"].map do |tuple|
+          facet_list = result['facets'].map do |tuple|
             name = tuple[0]
             hash = tuple[1]
-            type = hash["_type"]
-            body = hash.except!("_type")
+            type = hash['_type']
+            body = hash.except!('_type')
             Spree::Search::Elasticsearch::Facet.new(name: name, search_name: name, type: type, body: body)
           end
 

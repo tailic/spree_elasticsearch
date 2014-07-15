@@ -4,7 +4,8 @@
     <%= hidden_field_tag 'per_page', params[:per_page] %>
     <% facets = process_facets(@products.facets) %>
     <%= render :partial => 'spree/shared/filter_price', :locals => { :facet => facets.find {|facet| facet.name == 'price'} } %>
-    <%= render :partial => 'spree/shared/filter_properties', :locals => { :facets => facets.select {|facet| ((facet.name != "price") && (facet.name != "taxons")) && (facet.type == 'terms')} || [] } %>
+    <% block_facets = %w(price taxons) %>
+    <%= render :partial => 'spree/shared/filter_properties', :locals => { :facets => facets.select {|facet| block_facets.exclude?(facet.name) && (facet.type == 'terms')} || [] } %>
     <%= submit_tag Spree.t(:search), :name => nil %>
   <% end %>
 <% end %>

@@ -36,7 +36,7 @@ module Spree
       def to_hash
         q = { match_all: {} }
         if query # search in name and description
-          q = { query_string: { query: query, fields: ['name^5','description'], default_operator: 'AND', use_dis_max: true } }
+          q = { query_string: { query: query, fields: ['name^5', 'description', 'tags'], default_operator: 'AND', use_dis_max: true } }
         end        
         query = q
 
@@ -51,13 +51,13 @@ module Spree
           end
         end
 
-        sorting = [ "name.untouched" => { order: "asc" } ]
+        sorting = [ 'name.untouched' => { order: 'asc' } ]
 
         # facets
         facets = {
-          price: { statistical: { field: "price" } },
-          properties: { terms: { field: "properties", order: "count", size: 1000000 } },
-          taxons: { terms: { field: "taxons", size: 1000000 } }
+          price: { statistical: { field: 'price' } },
+          properties: { terms: { field: 'properties', order: 'count', size: 1000000 } },
+          taxons: { terms: { field: 'taxons', size: 1000000 } }
         }
 
         # basic skeleton
@@ -98,11 +98,12 @@ module Spree
         name: {
           fields: {
             name: { type: 'string', analyzer: 'snowball', boost: 100 }, 
-            untouched: { include_in_all: false, index: "not_analyzed", type: "string" }
+            untouched: { include_in_all: false, index: 'not_analyzed', type: 'string' }
           }, 
-          type: "multi_field"
+          type: 'multi_field'
         },
         description: { type: 'string', analyzer: 'snowball' },
+        tags: {type: 'string', index_name: 'tag'},
         available_on: { type: 'date', format: 'dateOptionalTime', include_in_all: false },
         updated_at: { type: 'date', format: 'dateOptionalTime', include_in_all: false },
         price: { type: 'double' },
@@ -112,14 +113,16 @@ module Spree
     end
 
     # Used when creating or updating a document in the index
+    # TODO implement product tags
     def to_hash
       result = {
         'id' => id,
-        'name' => name,
+        'name' => "#{manufacturer.name} #{category.name} #{name}",
         'description' => description,
         'available_on' => available_on,
         'updated_at' => updated_at,
         'price' => price,
+        'tags' => tags
       }
       result['properties'] = product_properties.map{|pp| "#{pp.property.name}||#{pp.value}"} unless product_properties.empty?
       unless taxons.empty?

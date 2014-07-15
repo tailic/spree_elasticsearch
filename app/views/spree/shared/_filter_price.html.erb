@@ -1,5 +1,5 @@
 <fieldset class="facet">
-  <h4 class="filter"><%= facet.name %></h4>
+  <h4 class="filter"><%= Spree.t facet.name %></h4>
   <div class="facet-box">
     <div class="slider">
       <div class="rangeslider_top_margin"></div>
@@ -7,7 +7,7 @@
     </div>
     <div class="slider-input">
       <input type="text" id="price-min" name="search[price][min]" value"<%= facet.body["min"] %>">
-      <span>tot</span>
+      <span><%= Spree.t :to %></span>
       <input type="text" id="price-max" name="search[price][max]" value"<%= facet.body["max"] %>">
     </div>
   </div>
