@@ -113,7 +113,6 @@ module Spree
     end
 
     # Used when creating or updating a document in the index
-    # TODO implement product tags
     def to_hash
       result = {
         'id' => id,
